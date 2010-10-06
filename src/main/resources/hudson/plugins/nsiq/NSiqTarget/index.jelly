@@ -1,0 +1,229 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
+	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form"
+	xmlns:i="jelly:fmt" xmlns:local="local">
+	<l:layout norefresh="true">
+		<st:include it="${it.owner}" page="sidepanel.jelly" />
+		<st:include page="/css.jelly" />
+		<script type="text/javascript">
+
+		</script>
+		<l:main-panel>
+
+			<j:choose>
+				<j:when test="${it.level == 'Directory'}">
+					<h2>N'SIQ Collector Result (Summary)</h2>
+					<br />
+				</j:when>
+				<j:when test="${it.level == 'File'}">
+					<h2>N'SIQ Collector Result (${it.name})</h2>
+					<a href="..">up to Parent Directory</a>
+					<br />
+				</j:when>
+				<j:otherwise>
+					<h2>N'SIQ Collector Result
+						(${it.nSiqResult.dir}${it.SEPARATOR}${it.nSiqResult.file})</h2>
+					<a href="..">up to Parent Directory</a>
+					<br />
+				</j:otherwise>
+			</j:choose>
+
+			<j:if test="${it.previousResult != null}">
+				<j:if test="${it.locView}">
+					<h3>LOC Trend</h3>
+					<table width="500px">
+						<tr>
+							<td>
+								<div>
+									<img src="locGraph/png?height=200&amp;width=350" />
+								</div>
+								<div align="center">
+									<b>total</b>
+									: ${it.summary.totalLoc},
+									<b>code</b>
+									: ${it.summary.codeLoc}
+									<b>/ </b> <font color="#ff0000">■</font> : Total, : <font color="#0000ff">■</font> Code LOC
+								</div>
+							</td>
+							<td>
+								<div>
+									<j:if test="${it.summary.locPerTypeAvailable == true}">
+										<a href="locDistGraph/png?height=500&amp;width=250" target="_blank">
+											<img src="locDistGraph/png?height=200&amp;width=150" />
+										</a>
+									</j:if>								
+									<j:if test="${it.summary.locPerTypeAvailable == false}">
+										Please build again to see LOC distribution graph.
+									</j:if>
+								</div>
+								<div align="center" style="margin-right:20px">
+									Code LOC Dist
+								</div>
+							</td>
+						</tr>
+					</table>
+				
+				</j:if>
+				<j:if test="${it.complexityView}">
+					<h3>Complexity Trend</h3>
+					<img src="complexityGraph/png?height=200&amp;width=500"/>
+					<br />
+				</j:if>
+			</j:if>
+
+			<j:if test="${it.overView and it.overComplexity.size() > 0}">
+				<h3>Complexity Ranking</h3>
+				<table border="1px" class="pane sortable">
+					<tr>
+						<td class="pane-header">Type</td>
+						<td class="pane-header">File</td>
+						<td class="pane-header">Function</td>
+						<td class="pane-header">Complexity</td>
+					</tr>
+					<j:forEach var="c" items="${it.overComplexity}">
+						<tr>
+							<td>${c.type}</td>
+							<td>${c.file}</td>
+							<td>${c.function}</td>
+							<td>${c.complexity}</td>
+						</tr>
+					</j:forEach>
+				</table>
+				<br />
+			</j:if>
+
+			<h3>Complexity Breakdown by ${it.level}</h3>
+			<table border="1px" class="pane sortable">
+				<j:choose>
+					<j:when test="${it.level == 'Directory'}">
+						<tr>
+							<td class="pane-header">Type</td>
+							<td class="pane-header">Directory</td>
+							<td class="pane-header">TotalLoc</td>
+							<td class="pane-header">CodeLoc</td>
+							<td class="pane-header">Over ${it.HIGH}</td>
+							<j:if test="${it.overView == true}">
+								<td class="pane-header">Over ${it.LOW}</td>
+							</j:if>
+						</tr>
+						<j:forEach var="child" items="${it.children}">
+							<j:set var="url" value="${it.urlTransform(child.key)}" />
+							<j:choose>
+								<j:when test="${child.value.summary.high > 0}">
+									<j:set var="color" value="#FFD2D2" />
+								</j:when>
+								<j:when test="${child.value.summary.low > 0}">
+									<j:set var="color" value="#FFFED2" />
+								</j:when>
+								<j:otherwise>
+									<j:set var="color" value="#FFFFFF" />
+								</j:otherwise>
+							</j:choose>
+							<tr bgcolor="${color}">
+								<td>Directory</td>
+								<td>
+									<a href="${url}">${child.key}</a>
+								</td>
+								<td>${child.value.summary.totalLoc}</td>
+								<td>${child.value.summary.codeLoc}</td>
+								<td>${child.value.summary.high}</td>
+								<j:if test="${it.overView == true}">
+									<td>${child.value.summary.low}</td>
+								</j:if>
+							</tr>
+						</j:forEach>
+					</j:when>
+					<j:when test="${it.level == 'File'}">
+						<tr>
+							<td class="pane-header">Type</td>
+							<td class="pane-header">File</td>
+							<td class="pane-header">TotalLoc</td>
+							<td class="pane-header">CodeLoc</td>
+							<td class="pane-header">Over ${it.HIGH}</td>
+							<j:if test="${it.overView == true}">
+								<td class="pane-header">Over ${it.LOW}</td>
+							</j:if>
+						</tr>
+						<j:forEach var="nsiq" items="${it.nSiqResultList}">
+							<j:choose>
+								<j:when test="${nsiq.complexity >= it.HIGH}">
+									<j:set var="color" value="#FFD2D2" />
+								</j:when>
+								<j:when test="${nsiq.complexity >= it.LOW}">
+									<j:set var="color" value="#FFFED2" />
+								</j:when>
+								<j:otherwise>
+									<j:set var="color" value="#FFFFFF" />
+								</j:otherwise>
+							</j:choose>
+							<tr bgcolor="${color}">
+								<td>${nsiq.type}</td>
+								<j:choose>
+										<j:set var="url" value="${it.urlTransform(nsiq.file)}" />
+										<td>
+											<a href="${url}">${nsiq.file}</a>
+										</td>
+								</j:choose>
+								<td>${nsiq.totalLoc}</td>
+								<td>${nsiq.codeLoc}</td>
+								<td>${nsiq.highCount}</td>
+								<j:if test="${it.overView == true}">
+									<td>${nsiq.lowCount}</td>
+								</j:if>
+							</tr>
+						</j:forEach>
+					</j:when>
+					<j:otherwise>
+						<tr>
+							<td class="pane-header">Type</td>
+							<td class="pane-header">Function</td>
+							<td class="pane-header">TotalLoc</td>
+							<td class="pane-header">CodeLoc</td>
+							<td class="pane-header">Complexity</td>
+							
+						</tr>
+						<j:forEach var="c" items="${it.complexityList}">
+							<j:choose>
+								<j:when test="${c.high}">
+									<j:set var="color" value="#FFD2D2" />
+								</j:when>
+								<j:when test="${c.low}">
+									<j:set var="color" value="#FFFED2" />
+								</j:when>
+								<j:otherwise>
+									<j:set var="color" value="#FFFFFF" />
+								</j:otherwise>
+							</j:choose>
+							<tr bgcolor="${color}">
+								<td>Function</td>
+								<td>${c.function}</td>
+								<td>${c.totalLoc}</td>
+								<td>${c.codeLoc}</td>
+								<td>${c.complexity}</td>
+								
+							</tr>
+						</j:forEach>
+					</j:otherwise>
+				</j:choose>
+			</table>
+			<j:choose>
+				<j:when test="${it.level == 'Function'}">
+					<table width="100%">
+						<tr>
+							<td>
+								<link type="text/css" rel="stylesheet" href="${rootURL}/plugin/nsiqcollector/style.css"></link>
+								<link type="text/css" rel="stylesheet" href="${rootURL}/plugin/nsiqcollector/highlight.css"></link>
+								
+								<script language="javascript" src="${rootURL}/plugin/nsiqcollector/nsiq.js" />
+								<br/>
+								<h3>
+								<a href="javascript:showSourceCode('./raw')">Show Source Code (latest version)</a>
+								</h3>
+								<div id="sourceholder" />
+							</td>
+						</tr>
+					</table>
+				</j:when>
+			</j:choose>
+		</l:main-panel>
+	</l:layout>
+</j:jelly>

@@ -1,0 +1,18 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt" xmlns:local="local">
+	<style type="text/css">
+		.priority-high {
+			background: #EF2929;
+			background-image:url(${rootURL}/plugin/nsiqcollector/icons/clearpixel.gif);
+		}
+
+		.priority-normal {
+			background: #FCE94F;
+			background-image:url(${rootURL}/plugin/nsiqcollector/icons/clearpixel.gif);
+		}
+
+		.priority-low {
+			background: #729FCF;
+			background-image:url(${rootURL}/plugin/nsiqcollector/icons/clearpixel.gif);
+		}
+	</style>
+</j:jelly>

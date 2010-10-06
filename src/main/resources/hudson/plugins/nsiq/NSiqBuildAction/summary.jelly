@@ -1,0 +1,10 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt">
+	<t:summary icon="/plugin/nsiqcollector/icons/nsiqcollector-48x48.png">
+		<a href="${it.urlName}">${it.displayName}</a><br/>
+		<li><b>LOC</b>: total=${it.summary.totalLoc}, code=${it.summary.codeLoc}</li>
+		<li><b>function</b>: count=${it.summary.total}</li>
+		<li><b>complexity</b>: average=${it.summary.averageComplexity}</li>
+		<li><b>over ${it.LOW}</b>: ${it.summary.low} (${it.lowRatio}%)</li>
+		<li><b>over ${it.HIGH}</b>: ${it.summary.high} (${it.highRatio}%)</li>
+	</t:summary>
+</j:jelly>

@@ -1,0 +1,31 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
+	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+	<f:entry title="Display LOC Graph" field="locView">
+		<f:checkbox checked="${instance.locView}" />
+	</f:entry>
+	<f:entry title="Display Complexity Graph" field="complexityView">
+		<f:checkbox checked="${instance.complexityView}" />
+	</f:entry>
+	<f:entry title="Display LOC/Complexity Graph by Day" field="dailyView">
+		<f:checkbox checked="${instance.dailyView}" />
+	</f:entry>
+	<f:entry title="Display Complexity over ${descriptor.getLowRatio(instance)}."
+		field="overView">
+		<f:checkbox checked="${instance.overView}" />
+	</f:entry>
+	<f:advanced>
+		<f:entry title="Source Encoding" field="encoding">
+			<f:enum>${it.encodingKey}</f:enum>
+		</f:entry>
+		<f:entry title="Low ratio"
+			description="The complexity ratio of ${descriptor.getLowRatio(instance)} or more" field="lowRatio">
+			<img src="${rootURL}/images/16x16/health-80plus.gif" alt="100%" />
+			<f:textbox value="${descriptor.getLowRatio(instance)}" />
+		</f:entry>
+		<f:entry title="High ratio"
+			description="The complexity ratio of ${descriptor.getHighRatio(instance)} or more" field="highRatio">
+			<img src="${rootURL}/images/16x16/health-80plus.gif" alt="100%" />
+			<f:textbox value="${descriptor.getHighRatio(instance)}" />
+		</f:entry>
+	</f:advanced>
+</j:jelly>

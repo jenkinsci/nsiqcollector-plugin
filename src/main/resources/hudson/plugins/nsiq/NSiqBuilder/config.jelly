@@ -1,0 +1,14 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
+	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+	<f:entry title="Source Directory"
+		help="/plugin/nsiqcollector/help/sourcedirectory.html" field="srcDir">
+		<f:textbox value="${instance.srcDir}" />
+	</f:entry>
+	<f:advanced>
+		<f:entry title="FileFilter.txt Location" help="/plugin/nsiqcollector/help/filefilter.html"
+			field="fileFilter">
+			<f:textbox value="${instance.fileFilter}" />
+			<br />
+		</f:entry>
+	</f:advanced>
+</j:jelly>

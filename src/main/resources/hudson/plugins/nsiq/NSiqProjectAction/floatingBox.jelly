@@ -1,0 +1,62 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
+	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form"
+	xmlns:i="jelly:fmt" xmlns:local="local">
+	<j:set var="lastResult" value="${from.lastResult}" />
+	<j:if test="${lastResult != null}">
+		<j:if test="${from.locView}">
+			<div class="test-trend-caption">N'SIQ Collector (LOC)</div>
+			<table width="500px">
+				<tr>
+					<td>
+						<div>
+							<a href="${from.urlName}/">
+								<img src="${from.urlName}/locGraph/png?height=200&amp;width=350" />
+							</a>
+						</div>
+						<div align="center">
+							<b>total</b>
+							: ${lastResult.summary.totalLoc},
+							<b>code</b>
+							: ${lastResult.summary.codeLoc}
+							<b>/ </b> <font color="#ff0000">■</font> : Total, : <font color="#0000ff">■</font> Code LOC
+						</div>
+					</td>
+					<td>
+						<div>
+							<j:if test="${lastResult.summary.locPerTypeAvailable == true}" >
+								<a href="${from.urlName}/locDistGraph/png?height=500&amp;width=250" target="_blank">
+									<img src="${from.urlName}/locDistGraph/png?height=200&amp;width=150" />
+								</a>
+							</j:if>
+							<j:if test="${lastResult.summary.locPerTypeAvailable == false}" >
+									Please build again to see LOC distribution graph.
+							</j:if>
+						</div>
+						<div align="center" style="margin-right:20px">
+							Code LOC Dist
+						</div>
+						
+					</td>
+				</tr>
+			</table>
+
+		</j:if>
+		<br />
+		<j:if test="${from.complexityView}">
+			<div class="test-trend-caption">N'SIQ Collector (Complexity)</div>
+			<div>
+				<a href="${from.urlName}/">
+					<img src="${from.urlName}/complexityGraph/png" />
+				</a>
+			</div>
+			<div align="center">
+				<b>average</b>
+				: ${lastResult.summary.averageComplexity},
+				<b> <font color="#0000ff">■</font> over ${lastResult.LOW}</b>
+				: ${lastResult.lowRatio}%,
+				<b> <font color="#ff0000">■</font> over ${lastResult.HIGH}</b>
+				: ${lastResult.highRatio}%
+			</div>
+		</j:if>
+	</j:if>
+</j:jelly>
