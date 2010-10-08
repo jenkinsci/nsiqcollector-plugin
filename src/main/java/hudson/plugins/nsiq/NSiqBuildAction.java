@@ -26,7 +26,7 @@ import org.kohsuke.stapler.StaplerProxy;
  * @version $Rev$, $Date$
  */
 public final class NSiqBuildAction implements HealthReportingAction, StaplerProxy, NSiqAware {
-	Logger logger = Logger.getLogger(NSiqBuildAction.class.getName());
+	private static Logger logger = Logger.getLogger(NSiqBuildAction.class.getName());
 	public final Build<?, ?> owner;
 	private final double lowRatio;
 	private final double highRatio;

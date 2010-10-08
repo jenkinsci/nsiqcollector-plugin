@@ -424,6 +424,9 @@ public class NSiqTarget implements Serializable, NSiqAware {
 	}
 
 	public NSiqResult getItsNSiqResult() {
+		if (itsNSiqResult == null && nsiqResult.size() > 0) {
+			return nsiqResult.get(0);
+		}
 		return itsNSiqResult;
 	}
 
