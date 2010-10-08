@@ -10,9 +10,9 @@ public enum FileType {
 	JAVA("Java", "Java", new String[] { "java" }),
 	CCPP("C/C++", "C/C++", new String[] { "cpp", "h", "c", "hxx", "cxx", "hpp" }),
 	CSharp("C#", "C#", new String[] { "cs" }),
-	ObjectiveC("ObjC", "ObjC", new String[] { "cs" }),
+	ObjectiveC("ObjC", "ObjC", new String[] { "m" }),
 	HTML("Html", "HTML", new String[] { "htm", "html" }),
-	JSPPHP("JSP/PHP", "JSP\nPHP", new String[] { "jsp", "php" }),
+	JSP_PHP("JSP/PHP", "JSP\nPHP", new String[] { "jsp", "php" }),
 	JAVASCRIPT_ACTIONSCRIPT("JavaScript/ActionScript", "Java /\nAction\nScript", new String[] { "js", "as" }),
 	SHELL("Shell", "Shell", null);
 
@@ -56,6 +56,4 @@ public enum FileType {
 	public String getDisplayName() {
 		return displayName;
 	}
-
-
 }

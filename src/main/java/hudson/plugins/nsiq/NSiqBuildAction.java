@@ -13,8 +13,9 @@ import hudson.util.ChartUtil.NumberOnlyBuildLabel;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.apache.commons.lang.mutable.MutableInt;
 import org.jfree.chart.JFreeChart;
 import org.kohsuke.stapler.StaplerProxy;
 
@@ -25,6 +26,7 @@ import org.kohsuke.stapler.StaplerProxy;
  * @version $Rev$, $Date$
  */
 public final class NSiqBuildAction implements HealthReportingAction, StaplerProxy, NSiqAware {
+	Logger logger = Logger.getLogger(NSiqBuildAction.class.getName());
 	public final Build<?, ?> owner;
 	private final double lowRatio;
 	private final double highRatio;
@@ -193,20 +195,20 @@ public final class NSiqBuildAction implements HealthReportingAction, StaplerProx
 			try {
 				nsiqTarget = (NSiqTarget) NSiqUtil.getDataFile(owner).read();
 			} catch (IOException e) {
-				e.printStackTrace();
+				logger.log(Level.SEVERE, e.toString());
 			}
 
 			if (nsiqTarget != null) {
 				nsiqTarget.setOwner(owner);
-
+				
 				for (NSiqTarget file : nsiqTarget.getChildren().values()) {
 					file.setOwner(owner);
-
+					file.setParent(nsiqTarget);
 					for (NSiqTarget function : file.getChildren().values()) {
 						function.setOwner(owner);
+						function.setParent(file);
 					}
 				}
-
 				target = new WeakReference<NSiqTarget>(nsiqTarget);
 				return nsiqTarget;
 			} else {
@@ -271,12 +273,12 @@ public final class NSiqBuildAction implements HealthReportingAction, StaplerProx
 		return new Graph(getTimestamp(), 500, 200) {
 			@Override
 			protected JFreeChart createGraph() {
-				Map<FileType, MutableInt> locPerType = NSiqBuildAction.this.getSummary().getLocPerType();
+				Map<FileType, Integer> locPerType = NSiqBuildAction.this.getSummary().getLocPerType();
 				CustomBuildLabel numberOnlyBuildLabel = new CustomBuildLabel(owner.number);
 				DataSetBuilder<String, Comparable<?>> dsb = new DataSetBuilder<String, Comparable<?>>();
 //				dsb.add(0, "", new CustomBuildLabel(0));
 				if (locPerType != null) {
-					for (Map.Entry<FileType, MutableInt> eachType : locPerType.entrySet()) {
+					for (Map.Entry<FileType, Integer> eachType : locPerType.entrySet()) {
 						dsb.add(eachType.getValue().intValue(), eachType.getKey().getDisplayName(), numberOnlyBuildLabel);
 					}
 				}

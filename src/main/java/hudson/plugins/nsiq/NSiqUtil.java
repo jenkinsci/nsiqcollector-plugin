@@ -4,6 +4,7 @@ import hudson.FilePath;
 import hudson.XmlFile;
 import hudson.model.Build;
 import hudson.model.Hudson;
+import hudson.plugins.nsiq.model.FileType;
 import hudson.util.ColorPalette;
 import hudson.util.ShiftedCategoryAxis;
 import hudson.util.XStream2;
@@ -12,7 +13,11 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.io.File;
 import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import org.apache.commons.lang.mutable.MutableInt;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
@@ -66,7 +71,7 @@ public final class NSiqUtil {
 		final JFreeChart chart = ChartFactory.createLineChart(null, null, yAxis, dataset, PlotOrientation.VERTICAL, false, true, false);
 
 		chart.setBackgroundPaint(Color.white);
-		
+
 		final CategoryPlot plot = chart.getCategoryPlot();
 		plot.setBackgroundPaint(Color.WHITE);
 		plot.setOutlinePaint(null);
@@ -112,7 +117,7 @@ public final class NSiqUtil {
 	public static JFreeChart createStackChart(CategoryDataset dataset, String yAxis) {
 		final JFreeChart chart = ChartFactory.createStackedAreaChart(null, null, yAxis, dataset, PlotOrientation.VERTICAL, false, true, false);
 		chart.setBackgroundPaint(Color.white);
-		
+
 		final CategoryPlot plot = chart.getCategoryPlot();
 		plot.setBackgroundPaint(Color.WHITE);
 		plot.setOutlinePaint(null);
@@ -172,11 +177,19 @@ public final class NSiqUtil {
 		rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 		rangeAxis.setLowerBound(0);
 		final StackedBarRenderer renderer = (StackedBarRenderer) plot.getRenderer();
-		//renderer.setSeriesVisibleInLegend(0, false);
+		// renderer.setSeriesVisibleInLegend(0, false);
 		plot.setInsets(new RectangleInsets(0, 0, 0, 5.0));
-		renderer.setBaseItemLabelsVisible(true); 
-		renderer.setItemLabelGenerator(new StandardCategoryItemLabelGenerator("{2}", new DecimalFormat("0")));
+		renderer.setBaseItemLabelsVisible(true);
+		renderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator("{2}", new DecimalFormat("0")));
 		plot.setRenderer(renderer);
 		return chart;
+	}
+
+	public static Map<FileType, Integer> convertLangDistMap(Map<FileType, MutableInt> locPerType) {
+		Map<FileType, Integer> langDistMap = new HashMap<FileType, Integer>();
+		for (Entry<FileType, MutableInt> entry : locPerType.entrySet()) {
+			langDistMap.put(entry.getKey(), entry.getValue().toInteger());
+		}
+		return langDistMap;
 	}
 }

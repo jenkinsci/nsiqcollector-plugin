@@ -8,7 +8,6 @@ import hudson.model.Action;
 import hudson.model.Build;
 import hudson.model.BuildListener;
 import hudson.model.FreeStyleProject;
-import hudson.model.Hudson;
 import hudson.model.Project;
 import hudson.model.Result;
 import hudson.plugins.nsiq.model.Complexity;

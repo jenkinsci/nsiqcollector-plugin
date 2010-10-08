@@ -53,5 +53,5 @@ public final class Constant {
 	
 	public static final int MAXIMUM_SOURCE_LINE = 10000;
 
-	public static final boolean DISABLE_IMAGE_CACHE = true;
+	public static final boolean DISABLE_IMAGE_CACHE = false;
 }

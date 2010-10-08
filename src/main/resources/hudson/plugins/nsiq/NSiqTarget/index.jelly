@@ -21,7 +21,7 @@
 				</j:when>
 				<j:otherwise>
 					<h2>N'SIQ Collector Result
-						(${it.nSiqResult.dir}${it.SEPARATOR}${it.nSiqResult.file})</h2>
+						(${it.itsNSiqResult.dir}${it.SEPARATOR}${it.itsNSiqResult.file})</h2>
 					<a href="..">up to Parent Directory</a>
 					<br />
 				</j:otherwise>
@@ -92,6 +92,9 @@
 			</j:if>
 
 			<h3>Complexity Breakdown by ${it.level}</h3>
+			<j:if test="${it.level == 'Function'}">
+				<ul><li>This view only shows the functions over specified complexity.</li></ul>
+			</j:if>
 			<table border="1px" class="pane sortable">
 				<j:choose>
 					<j:when test="${it.level == 'Directory'}">
@@ -143,7 +146,8 @@
 								<td class="pane-header">Over ${it.LOW}</td>
 							</j:if>
 						</tr>
-						<j:forEach var="nsiq" items="${it.nSiqResultList}">
+						<j:forEach var="eachChild" items="${it.childrenList}">
+							<j:set var="nsiq" value="${eachChild.itsNSiqResult}"/> 
 							<j:choose>
 								<j:when test="${nsiq.complexity >= it.HIGH}">
 									<j:set var="color" value="#FFD2D2" />
@@ -181,7 +185,7 @@
 							<td class="pane-header">Complexity</td>
 							
 						</tr>
-						<j:forEach var="c" items="${it.complexityList}">
+						<j:forEach var="c" items="${it.itsNSiqResult.functions}">
 							<j:choose>
 								<j:when test="${c.high}">
 									<j:set var="color" value="#FFD2D2" />

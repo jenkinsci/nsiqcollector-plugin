@@ -1,12 +1,11 @@
 package hudson.plugins.nsiq.model;
 
-import java.util.Map;
-
 import hudson.plugins.nsiq.NSiqUtil;
+
+import java.util.Map;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.apache.commons.lang.mutable.MutableInt;
 
 /**
  * 
@@ -21,7 +20,7 @@ public class NSiqSummary {
 	private int complexity;
 	private int totalLoc;
 	private int codeLoc;
-	private Map<FileType, MutableInt> locPerType;
+	private Map<FileType, Integer> locPerType;
 
 	public int getTotal() {
 		return total;
@@ -84,11 +83,11 @@ public class NSiqSummary {
 		return ToStringBuilder.reflectionToString(this, ToStringStyle.DEFAULT_STYLE);
 	}
 
-	public void setLocPerType(Map<FileType, MutableInt> locPerType) {
+	public void setLocPerType(Map<FileType, Integer> locPerType) {
 		this.locPerType = locPerType;
 	}
 
-	public Map<FileType, MutableInt> getLocPerType() {
+	public Map<FileType, Integer> getLocPerType() {
 		return this.locPerType;
 	}
 	

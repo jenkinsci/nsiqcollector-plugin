@@ -16,8 +16,7 @@ import hudson.util.Graph;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -43,14 +42,13 @@ import org.springframework.beans.BeanUtils;
 public class NSiqTarget implements Serializable, NSiqAware {
 	private static final long serialVersionUID = 2951637921403461196L;
 
-	private Build<?, ?> owner = null;
-
+	transient private Build<?, ?> owner = null;
 	private final String name;
 	private final Level level;
 	private final NSiqSummary summary = new NSiqSummary();
-	private final List<NSiqResult> nsiqResult;
-
-	private final NSiqTarget parent;
+	transient private List<NSiqResult> nsiqResult;
+	private NSiqResult itsNSiqResult;
+	transient private NSiqTarget parent;
 	private final Map<String, NSiqTarget> children = new LinkedHashMap<String, NSiqTarget>();
 
 	private NSiqTarget(Build<?, ?> owner, NSiqTarget parent, final String name, final Level level, final List<NSiqResult> nsiqResult) {
@@ -58,12 +56,20 @@ public class NSiqTarget implements Serializable, NSiqAware {
 		this.parent = parent;
 		this.name = name;
 		this.level = level;
-		this.nsiqResult = nsiqResult;
-
-		parseSummary();
-
+		switch (level) {
+		case Directory:
+			// Over all level info
+			itsNSiqResult = null;
+			break;
+		case File:
+		case Function:
+			// Functions in a file level
+			itsNSiqResult = nsiqResult.get(0);
+			break;
+		}
+		parseSummary(nsiqResult);
 		if (level != Level.Function) {
-			parseChildren();
+			parseChildren(nsiqResult);
 		}
 	}
 
@@ -96,6 +102,10 @@ public class NSiqTarget implements Serializable, NSiqAware {
 		return children;
 	}
 
+	public Collection<NSiqTarget> getChildrenList() {
+		return children.values();
+	}
+
 	public NSiqTarget getChild(String name) {
 		return children.get(name);
 	}
@@ -104,34 +114,12 @@ public class NSiqTarget implements Serializable, NSiqAware {
 		return summary;
 	}
 
-	public NSiqResult getNSiqResult() {
-		if (level != Level.Function) {
-			return null;
-		}
-
-		if (nsiqResult != null && !nsiqResult.isEmpty()) {
-			return this.nsiqResult.get(0);
-		}
-
-		return null;
-	}
-
 	public List<Complexity> getComplexityList() {
-		NSiqResult result = getNSiqResult();
-
-		if (result != null) {
-			return result.getFunctions();
+		if (getItsNSiqResult() != null) {
+			return getItsNSiqResult().getFunctions();
 		}
 
 		return null;
-	}
-
-	public List<NSiqResult> getNSiqResultList() {
-		if (level == Level.Function) {
-			return null;
-		}
-
-		return nsiqResult;
 	}
 
 	private NSiqPublisher getPublisher() {
@@ -150,61 +138,12 @@ public class NSiqTarget implements Serializable, NSiqAware {
 		return getPublisher().isOverView();
 	}
 
-	@SuppressWarnings("unchecked")
-	private List<Complexity> getOverComplexityList() {
-		List<Complexity> overComplexityList = new LinkedList<Complexity>();
-
-		for (NSiqResult nsiq : nsiqResult) {
-			if (nsiq.getFunctions() == null) {
-				continue;
-			}
-
-			for (Complexity complexity : nsiq.getFunctions()) {
-				if (isReportableComplexity(complexity)) {
-					overComplexityList.add(complexity);
-				}
-			}
-		}
-
-		// reverse sort
-		Collections.sort(overComplexityList, new Comparator() {
-			public int compare(Object o1, Object o2) {
-				if (o1 == null || o2 == null) {
-					return 0;
-				}
-
-				if (o1 instanceof Complexity && o2 instanceof Complexity) {
-					Complexity c1 = (Complexity) o1;
-					Complexity c2 = (Complexity) o2;
-					return Integer.valueOf(c2.getComplexity()).compareTo(c1.getComplexity());
-				}
-
-				return 0;
-			}
-		});
-
-		return overComplexityList;
-	}
-
-	private boolean isReportableComplexity(Complexity complexity) {
-		return (!isOverView() && complexity.getComplexity() >= LOW) || (isOverView() && complexity.getComplexity() >= HIGH);
-	}
-
-	public List<Complexity> getOverComplexity() {
-		List<Complexity> result = new LinkedList<Complexity>();
-		List<Complexity> overComplexity = getOverComplexityList();
-
-		for (int i = 0; i < overComplexity.size() && i <= Constant.OVER_COUNT; i++) {
-			result.add(overComplexity.get(i));
-		}
-
-		return result;
-	}
-
 	/**
 	 * summary
+	 * 
+	 * @param nsiqResults
 	 */
-	private void parseSummary() {
+	private void parseSummary(List<NSiqResult> nsiqResults) {
 		int total = 0;
 		int high = 0;
 		int low = 0;
@@ -213,14 +152,14 @@ public class NSiqTarget implements Serializable, NSiqAware {
 		int codeLoc = 0;
 		Map<FileType, MutableInt> locPerType = new HashMap<FileType, MutableInt>();
 
-		for (NSiqResult nsiq : nsiqResult) {
+		for (NSiqResult nsiq : nsiqResults) {
 			totalLoc += nsiq.getTotalLoc();
 			codeLoc += nsiq.getCodeLoc();
 
-			MutableInt eachLocPerType = locPerType.get(nsiq.getType());
+			MutableInt eachLocPerType = locPerType.get(nsiq.geteType());
 			if (eachLocPerType == null) {
 				eachLocPerType = new MutableInt();
-				locPerType.put(nsiq.getType(), eachLocPerType);
+				locPerType.put(nsiq.geteType(), eachLocPerType);
 			}
 			eachLocPerType.add(nsiq.getCodeLoc());
 
@@ -251,7 +190,7 @@ public class NSiqTarget implements Serializable, NSiqAware {
 		summary.setComplexity(comp);
 		summary.setTotalLoc(totalLoc);
 		summary.setCodeLoc(codeLoc);
-		summary.setLocPerType(locPerType);
+		summary.setLocPerType(NSiqUtil.convertLangDistMap(locPerType));
 
 	}
 
@@ -261,10 +200,13 @@ public class NSiqTarget implements Serializable, NSiqAware {
 		}
 		return owner.getTimestamp().getTimeInMillis();
 	}
+
 	/**
 	 * children
+	 * 
+	 * @param nsiqResult
 	 */
-	private void parseChildren() {
+	private void parseChildren(List<NSiqResult> nsiqResult) {
 		// 디렉토리의 unique 이름 목록을 저장한다.
 		Set<String> treeSet = new TreeSet<String>();
 
@@ -276,7 +218,7 @@ public class NSiqTarget implements Serializable, NSiqAware {
 		Arrays.sort(sorted, String.CASE_INSENSITIVE_ORDER);
 
 		for (String name : sorted) {
-			List<NSiqResult> childNSiqResult = getChildNSiqResult(name);
+			List<NSiqResult> childNSiqResult = getChildNSiqResult(name, nsiqResult);
 			NSiqTarget childTarget = new NSiqTarget(owner, this, name, level == Level.Directory ? Level.File : Level.Function, childNSiqResult);
 			children.put(name, childTarget);
 		}
@@ -284,18 +226,19 @@ public class NSiqTarget implements Serializable, NSiqAware {
 
 	/**
 	 * 페이지에서 이름이 name인 정보를 리턴한다.
+	 * 
+	 * @param nsiqResult
 	 */
-	private List<NSiqResult> getChildNSiqResult(String name) {
+	private List<NSiqResult> getChildNSiqResult(String name, List<NSiqResult> nsiqResult) {
 		List<NSiqResult> result = new LinkedList<NSiqResult>();
 
-		for (NSiqResult nsiq : this.nsiqResult) {
+		for (NSiqResult nsiq : nsiqResult) {
 			if (level == Level.Directory && name.equals(nsiq.getDir()) || (level == Level.File && name.equals(nsiq.getFile()))) {
 				NSiqResult cloned = new NSiqResult();
 				BeanUtils.copyProperties(nsiq, cloned);
 				result.add(cloned);
 			}
 		}
-
 		return result;
 	}
 
@@ -397,8 +340,8 @@ public class NSiqTarget implements Serializable, NSiqAware {
 	}
 
 	public FilePath getSrcFile() throws InterruptedException, IOException {
-		String dir = getNSiqResult().getDir();
-		String file = getNSiqResult().getFile();
+		String dir = getItsNSiqResult().getDir();
+		String file = getItsNSiqResult().getFile();
 		for (FilePath moduleRoot : owner.getModuleRoots()) {
 			for (String src : getSrc()) {
 				FilePath path = moduleRoot.child(src.trim()).child(dir).child(file);
@@ -407,10 +350,6 @@ public class NSiqTarget implements Serializable, NSiqAware {
 			}
 		}
 		return null;
-	}
-
-	public String getBaseURL() {
-		return NSiqUtil.getHudsonBaseURL();
 	}
 
 	/**
@@ -467,17 +406,29 @@ public class NSiqTarget implements Serializable, NSiqAware {
 			@Override
 			protected JFreeChart createGraph() {
 
-				Map<FileType, MutableInt> locPerType = NSiqTarget.this.getSummary().getLocPerType();
+				Map<FileType, Integer> locPerType = NSiqTarget.this.getSummary().getLocPerType();
 				CustomBuildLabel numberOnlyBuildLabel = new CustomBuildLabel(owner.number);
 				DataSetBuilder<String, Comparable<?>> dsb = new DataSetBuilder<String, Comparable<?>>();
 				if (locPerType != null) {
-					for (Map.Entry<FileType, MutableInt> eachType : locPerType.entrySet()) {
+					for (Map.Entry<FileType, Integer> eachType : locPerType.entrySet()) {
 						dsb.add(eachType.getValue().intValue(), eachType.getKey().getDisplayName(), numberOnlyBuildLabel);
 					}
 				}
 				return NSiqUtil.createDistrubutionChart(dsb.build(), "lines");
 			}
 		};
+	}
+
+	public void setItsNSiqResult(NSiqResult itsNSiqResult) {
+		this.itsNSiqResult = itsNSiqResult;
+	}
+
+	public NSiqResult getItsNSiqResult() {
+		return itsNSiqResult;
+	}
+
+	public void setParent(NSiqTarget parent) {
+		this.parent = parent;
 	}
 
 }

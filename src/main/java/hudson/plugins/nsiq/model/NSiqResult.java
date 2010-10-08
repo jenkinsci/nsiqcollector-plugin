@@ -13,21 +13,14 @@ import org.apache.commons.lang.builder.ToStringStyle;
  * @version $Rev$, $Date$
  */
 public class NSiqResult implements Comparable<NSiqResult>, NSiqAware {
-	private FileType type;
+	private FileType eType;
+	private String type;
 	private String dir = null;
 	private String file = null;
 	private int complexity;
 	private List<Complexity> functions = null;
 	private int totalLoc;
 	private int codeLoc;
-
-	public FileType getType() {
-		return type;
-	}
-
-	public void setType(FileType type) {
-		this.type = type;
-	}
 
 	public String getDir() {
 		return dir;
@@ -138,5 +131,27 @@ public class NSiqResult implements Comparable<NSiqResult>, NSiqAware {
 		}
 
 		return file.compareTo(nsiqCollector.getFile());
+	}
+
+	public void seteType(FileType eType) {
+		this.eType = eType;
+	}
+
+	public FileType geteType() {
+		if (this.eType == null) {
+			this.eType = FileType.getFileType(this.type);
+		}
+		return eType;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getType() {
+		if (type == null && eType != null) {
+			type = eType.getName();
+		}
+		return type;
 	}
 }

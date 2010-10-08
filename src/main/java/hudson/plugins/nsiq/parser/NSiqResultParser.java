@@ -1,6 +1,7 @@
 package hudson.plugins.nsiq.parser;
 
 import hudson.plugins.nsiq.NSiqAware;
+import hudson.plugins.nsiq.NSiqUtil;
 import hudson.plugins.nsiq.model.Complexity;
 import hudson.plugins.nsiq.model.FileType;
 import hudson.plugins.nsiq.model.Loc;
@@ -65,7 +66,7 @@ public class NSiqResultParser implements NSiqAware {
 
 	private NSiqResult getNSiqResult(Loc loc) {
 		NSiqResult nsiq = new NSiqResult();
-		nsiq.setType(loc.getType());
+		nsiq.seteType(loc.getType());
 		nsiq.setDir(getDir(loc.getFile(), loc.getTarget()));
 		nsiq.setFile(getFile(loc.getFile()));
 		nsiq.setTotalLoc(loc.getTotalLoc());
@@ -130,7 +131,7 @@ public class NSiqResultParser implements NSiqAware {
 		summary.setComplexity(comp);
 		summary.setTotalLoc(totalLoc);
 		summary.setCodeLoc(codeLoc);
-		summary.setLocPerType(locPerType);
+		summary.setLocPerType(NSiqUtil.convertLangDistMap(locPerType));
 		Collections.sort(result);
 
 		return result;

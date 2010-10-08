@@ -11,9 +11,9 @@ import org.apache.commons.lang.builder.ToStringStyle;
  * @version $Rev$, $Date$
  */
 public class Complexity implements Comparable<Complexity>, NSiqAware {
-	private String target;
-	private String type;
-	private String file = null;
+	transient private String target;
+	transient private String type;
+	transient private String file = null;
 	private String function = null;
 	private int complexity;
 	private int totalLoc;
