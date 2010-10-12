@@ -10,7 +10,7 @@
 	<artifactId>nsiqcollector</artifactId>
 	<name>Hudson N'SIQ Collector Plugin</name>
 	<packaging>hpi</packaging>
-	<version>1.3.0-beta01-SNAPSHOT</version>
+	<version>1.3.0-SNAPSHOT</version>
 	<url>http://wiki.hudson-ci.org/display/HUDSON/NSIQ+Collector+Plugin</url>
 
 
@@ -40,10 +40,7 @@
 		</developer>
 	</developers>
 
-	<scm>
-		<connection>https://hudson.dev.java.net/svn/hudson/trunk/hudson/plugins/nsiqcollector</connection>
-		<developerConnection>http://dev.naver.com/project/nsiqcollector</developerConnection>
-	</scm>
+
 
 	<repositories>
 		<repository>
