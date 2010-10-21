@@ -9,7 +9,7 @@
 	<artifactId>nsiqcollector</artifactId>
 	<name>Hudson NSIQ Collector Plugin</name>
 	<packaging>hpi</packaging>
-	<version>1.3.2</version>
+	<version>1.3.3-SNAPSHOT</version>
 	<url>http://wiki.hudson-ci.org/display/HUDSON/NSIQ+Collector+Plugin</url>
 
 	<developers>
@@ -83,10 +83,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
-  <scm>
-    <connection>scm:svn:https://guest@svn.dev.java.net/svn/hudson/tags/nsiqcollector-1.3.2</connection>
-    <developerConnection>scm:svn:https://svn.dev.java.net/svn/hudson/tags/nsiqcollector-1.3.2</developerConnection>
-    <url>https://hudson.dev.java.net/source/browse/hudson/hudson/plugins/nsiqcollector/tags/nsiqcollector-1.3.2</url>
-  </scm>
 </project>
