@@ -103,6 +103,8 @@ public class NSiqPublisher extends Recorder implements NSiqAware {
 		FilePath complexityFile = NSiqUtil.getComplexityFile(moduleRoot);
 
 		if (!locFile.exists() || !complexityFile.exists()) {
+			listener.getLogger().printf("[NSIQCOLLECTOR ERROR] Can not find the file %s and %s\n", locFile.getRemote(), complexityFile.getRemote());
+			listener.getLogger().println("[NSIQCOLLECTOR ERROR] Did you add \"Execute N'SIQ Collector\" in build step?");
 			return false;
 		}
 
