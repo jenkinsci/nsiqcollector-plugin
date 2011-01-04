@@ -117,6 +117,9 @@
 						<artifactId>maven-clover2-plugin</artifactId>
 						<version>3.0.2</version>
 						<configuration>
+							<excludes>
+								<exclude>hudson/plugins/nsiq/FileExtension.java</exclude>
+							</excludes>
 							<generateHtml>true</generateHtml>
 							<generateXml>true</generateXml>
 							<generatePdf>false</generatePdf>
