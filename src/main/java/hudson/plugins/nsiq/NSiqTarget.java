@@ -334,7 +334,7 @@ public class NSiqTarget implements Serializable, NSiqAware {
 	public String[] getSrc() {
 		NSiqBuilder builder = getBuilder();
 		if (builder == null) {
-			return null;
+			return new String[]{};
 		}
 		return builder.getSrcDir().split(",");
 	}
