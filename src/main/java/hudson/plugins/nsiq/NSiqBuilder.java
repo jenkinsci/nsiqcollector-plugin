@@ -4,6 +4,7 @@ import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.Launcher.ProcStarter;
+import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.Build;
 import hudson.model.BuildListener;
@@ -93,7 +94,7 @@ public class NSiqBuilder extends Builder {
 	/**
 	 * 프로젝트 빌드가 완료된 후, {@link Builder}가 실제 수행하는 메소드이다.
 	 */
-	public boolean perform(Build<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
+	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
 		if (StringUtils.isEmpty(DESCRIPTOR.getNsiqPath())) {
 			listener.getLogger().println("[" + Constant.DISPLAY_NAME + "] " + "N'SIQ Collector path is not configured...");
 			return true;

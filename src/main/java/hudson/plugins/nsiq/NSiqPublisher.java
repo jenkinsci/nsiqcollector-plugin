@@ -3,6 +3,7 @@ package hudson.plugins.nsiq;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
+import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.Action;
 import hudson.model.Build;
@@ -23,6 +24,8 @@ import hudson.tasks.Publisher;
 import hudson.tasks.Recorder;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -93,10 +96,11 @@ public class NSiqPublisher extends Recorder implements NSiqAware {
 	/**
 	 * 프로젝트 빌드가 완료된 후, {@link Publisher}가 실제 수행하는 메소드이다.
 	 */
-	public boolean perform(Build<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
-		if (build.getResult().equals(Result.FAILURE)) {
+	public boolean perform(AbstractBuild<?, ?> _build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
+		if (!(_build instanceof Build) || _build.getResult().equals(Result.FAILURE)) {
 			return false;
 		}
+		Build build = (Build)_build;
 		FilePath moduleRoot = build.getModuleRoots().length == 1 ? build.getModuleRoot() : build.getModuleRoot().getParent();
 
 		FilePath locFile = NSiqUtil.getLocFile(moduleRoot);
@@ -139,9 +143,10 @@ public class NSiqPublisher extends Recorder implements NSiqAware {
 	/**
 	 * 플러그인에 대한 ProjectAction 인스턴스를 리턴한다.
 	 */
-	@SuppressWarnings("unchecked")
-	public Action getProjectAction(Project project) {
-		return new NSiqProjectAction(project);
+	public Collection<NSiqProjectAction> getProjectActions(AbstractProject<?,?> project) {
+		return project instanceof Project
+			? Collections.singleton(new NSiqProjectAction((Project)project))
+			: Collections.<NSiqProjectAction>emptySet();
 	}
 
 	@Extension
